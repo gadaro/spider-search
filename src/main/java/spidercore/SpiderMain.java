@@ -1,4 +1,4 @@
-package com.apps.spider;
+package spidercore;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
@@ -7,9 +7,14 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
+import spiderdb.SpiderDataBaseInit;
+
 public class SpiderMain {
 	
 	public static void main(String[] args) {
+		
+		SpiderDataBaseInit iniciar = new SpiderDataBaseInit();
+		iniciar.createTable();
 		
 		// TODO Utilizar un matcher replacer
 		for ( int id = 2; id < 10; id++ ) {
@@ -20,7 +25,7 @@ public class SpiderMain {
 		}
 		
     }
-	
+
 	public static String obtenerTorrent(String url, int timeout) {
 		
 		Document doc = null;

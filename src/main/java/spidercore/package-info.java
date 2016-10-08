@@ -1,0 +1,8 @@
+/**
+ * 
+ */
+/**
+ * @author Gabe
+ *
+ */
+package spidercore;
