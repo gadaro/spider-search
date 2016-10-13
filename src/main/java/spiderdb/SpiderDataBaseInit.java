@@ -11,6 +11,9 @@ public class SpiderDataBaseInit {
 	
 	public SpiderDataBaseInit () {
 		System.out.println("Iniciando módulo de base de datos...");
+		openConnection();
+		createTable();
+		System.out.println("Fin de la inicialización");
 	}
 	
 	/**
@@ -36,7 +39,7 @@ public class SpiderDataBaseInit {
 		System.out.println("Base de datos abierta");
 	} // Fin del método public void openConnection ()
 	
-	public void createTable () {
+	private void createTable () {
 		
 		Statement stmt = null;
 		
