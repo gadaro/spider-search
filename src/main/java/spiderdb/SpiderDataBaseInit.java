@@ -68,5 +68,36 @@ public class SpiderDataBaseInit {
 		}
 		
 	} // Fin del método public void createTable ()
+	
+	public void insertElement (SpiderDataBaseElement elemento) {
+		
+		Statement stmt = null;
+		
+		try {
+			if ( conn.isClosed() )
+				openConnection();
+		} catch (SQLException e) {
+			System.out.println("Error al intentar comprobar la conexión con la base de datos");
+			e.printStackTrace();
+		}
+		
+		try {
+			stmt = conn.createStatement();
+			String sql = "INSERT OR REPLACE INTO MOVIES " +
+					"(ID, NAME, QUALITY, LINK, SIZE) " +
+					"VALUES ('" + elemento.getId() + "', '" +
+								elemento.getName() + "', '" +
+								elemento.getQuality() + "', '" +
+								elemento.getLink() + "', '" +
+								elemento.getSize() + "')";
+			System.out.println("Resultado de ejecución: " + stmt.executeUpdate(sql));
+			stmt.close();
+			conn.close();
+		} catch (SQLException e) {
+			System.out.println("Error al insertar el registro en la base de datos");
+			e.printStackTrace();
+		}
+		
+	}
 
 }
