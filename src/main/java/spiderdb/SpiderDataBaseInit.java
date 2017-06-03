@@ -2,7 +2,9 @@ package spiderdb;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLTimeoutException;
 import java.sql.Statement;
 
 public class SpiderDataBaseInit {
@@ -39,6 +41,9 @@ public class SpiderDataBaseInit {
 		System.out.println("Base de datos abierta");
 	} // Fin del método public void openConnection ()
 	
+	/**
+	 * 
+	 */
 	private void createTable () {
 		
 		Statement stmt = null;
@@ -59,7 +64,7 @@ public class SpiderDataBaseInit {
 					" QUALITY CHAR(15)             NOT NULL, " + 
 					" LINK    TEXT                 NOT NULL, " + 
 					" SIZE    CHAR(10)             NOT NULL)";
-			System.out.println("Resultado de ejecución: " + stmt.executeUpdate(sql));
+			System.out.println("Resultado de la creación de la tabla: " + stmt.executeUpdate(sql));
 			stmt.close();
 			conn.close();
 		} catch (SQLException e) {
@@ -69,6 +74,10 @@ public class SpiderDataBaseInit {
 		
 	} // Fin del método public void createTable ()
 	
+	/**
+	 * 
+	 * @param elemento
+	 */
 	public void insertElement (SpiderDataBaseElement elemento) {
 		
 		Statement stmt = null;
@@ -90,13 +99,54 @@ public class SpiderDataBaseInit {
 								elemento.getQuality() + "', '" +
 								elemento.getLink() + "', '" +
 								elemento.getSize() + "')";
-			System.out.println("Resultado de ejecución: " + stmt.executeUpdate(sql));
+			System.out.println("Resultado de la inserción: " + stmt.executeUpdate(sql));
 			stmt.close();
 			conn.close();
 		} catch (SQLException e) {
 			System.out.println("Error al insertar el registro en la base de datos");
 			e.printStackTrace();
 		}
+		
+	}
+	
+	public int checkLastElement () {
+		
+		Statement stmt = null;
+		int id_actual = 0;
+		
+		try {
+			if ( conn.isClosed() )
+				openConnection();
+		} catch (SQLException e) {
+			System.out.println("Error al intentar comprobar la conexión con la base de datos");
+			e.printStackTrace();
+		}
+		
+		try {
+			stmt = conn.createStatement();
+			String sql = "SELECT ID FROM MOVIES " +
+					"ORDER BY ID DESC LIMIT 1";
+			
+			ResultSet result = stmt.executeQuery(sql);
+			String str_result = result.getString(1);
+			
+			stmt.close();
+			conn.close();
+			
+			if ( str_result != null ) {
+				System.out.println("Resultado de la búsqueda: " + str_result);
+				id_actual = Integer.parseInt(str_result);
+			}
+			
+		} catch (SQLTimeoutException toe) {
+			System.out.println("Timeout al buscar en la base de datos");
+			toe.printStackTrace();
+		} catch (SQLException e) {
+			System.out.println("Error al buscar en la base de datos");
+			e.printStackTrace();
+		}
+		
+		return id_actual;
 		
 	}
 

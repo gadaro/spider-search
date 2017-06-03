@@ -9,14 +9,34 @@ import org.jsoup.select.Elements;
 import spiderdb.SpiderDataBaseElement;
 import spiderdb.SpiderDataBaseInit;
 
+/**
+ * 
+ * @author Gabe
+ *
+ */
 public class SpiderMain {
 	
 	static SpiderDataBaseElement elemento = new SpiderDataBaseElement();
+	static final int PROFUNDIDAD = 50;
+	static final int ID_0 = 2;
+	static final String NOT_VALID_ID = "NOT_VALID_ID";
 	
 	public static void main(String[] args) {
 		
-		SpiderDataBaseInit iniciar = new SpiderDataBaseInit();
-		for ( int id = 2; id < 30; id++ ) {
+		SpiderDataBaseInit bbddinit = new SpiderDataBaseInit();
+		
+		int comienzo = bbddinit.checkLastElement();
+		
+		// Si devuelve 0, la base de datos está recién creada o hubo un error, se comienza desde ID_0.
+		// Se aumenta uno al comienzo para que continúe con el registro siguiente al último insertado.
+		if ( comienzo == 0 )
+			comienzo = ID_0;
+		else
+			comienzo ++;
+		
+		int fin = comienzo + PROFUNDIDAD;
+		
+		for ( int id = comienzo; id < fin; id++ ) {
 			
 			String url = "http://www.mejortorrent.com/secciones.php?sec=descargas&ap=contar&tabla=peliculas&id="
 					+ id + "&link_bajar=1";
@@ -27,8 +47,10 @@ public class SpiderMain {
 			obtenerInfo("http://www.mejortorrent.com/peli-descargar-torrent-" + id + "-a.html", 60000);
 			
 			// Insertar el registro
-			iniciar.insertElement(elemento);
-			System.out.println("Registro insertado: " + id);
+			if (elemento.getName() != NOT_VALID_ID) {
+				bbddinit.insertElement(elemento);
+				System.out.println("Registro insertado: " + id);
+			}
 			
 		}
 		
@@ -61,24 +83,35 @@ public class SpiderMain {
 			pelicula = doc.select("[href*=/uploads/]");
 			// System.out.println("link: " + pelicula.attr("href"));
 			elemento.setLink("www.mejortorrent.com" + pelicula.attr("href"));
-		}
-		else {
+		} else {
 			// Parsear el td
 			pelicula = doc.select("td").eq(52);
 			String[] bloque_1 = pelicula.html().split("</b>");
-			if (bloque_1[8].contains("DVDRip"))
-				// System.out.println("DVDRip");
-				elemento.setQuality("DVDRip");
-			else
-				System.out.println("Formato no reconocido: " + bloque_1[8]);
-			String[] bloque_2 = bloque_1[0].split(">");
-				// System.out.println("name: " + bloque_2[2]);
-				elemento.setName(bloque_2[2]);
-			String[] bloque_3 = bloque_1[13].split("<");
-				// System.out.println("size: " + bloque_3[0].substring(7));
-				elemento.setSize(bloque_3[0].substring(7));
+			
+			//System.out.println("Tamaño a examinar: " + bloque_1.length);
+			
+			if ( bloque_1.length > 1 ) {
+				if (bloque_1[8].contains("DVDRip"))
+					elemento.setQuality("DVDRip");
+				else if (bloque_1[8].contains("DVDscreener"))
+					elemento.setQuality("DVDscreener");
+				else {
+					System.out.println("Formato no reconocido: " + bloque_1[8]);
+					elemento.setQuality("Unknown");
+				}
+				
+				String[] bloque_2 = bloque_1[0].split(">");
+					// System.out.println("name: " + bloque_2[2]);
+					elemento.setName(bloque_2[2]);
+				String[] bloque_3 = bloque_1[13].split("<");
+					// System.out.println("size: " + bloque_3[0].substring(7));
+					elemento.setSize(bloque_3[0].substring(7));
+			} else {
+				System.out.println("Registro corrupto en la página");
+				elemento.setName(NOT_VALID_ID);
+			}
 		}
-		
+
 	}
 	
 }
