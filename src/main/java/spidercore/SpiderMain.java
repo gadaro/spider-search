@@ -2,12 +2,18 @@ package spidercore;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.util.regex.PatternSyntaxException;
+
+import javax.swing.JPanel;
+import javax.swing.JTextPane;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import spiderdb.SpiderDataBaseElement;
 import spiderdb.SpiderDataBaseInit;
+import spidergui.SpiderGuiMensajeInfo;
 
 /**
  * 
@@ -17,11 +23,11 @@ import spiderdb.SpiderDataBaseInit;
 public class SpiderMain {
 	
 	static SpiderDataBaseElement elemento = new SpiderDataBaseElement();
-	static final int PROFUNDIDAD = 50;
+	static final int PROFUNDIDAD = 2;
 	static final int ID_0 = 2;
 	static final String NOT_VALID_ID = "NOT_VALID_ID";
 	
-	public static void main(String[] args) {
+	public static void execute (JTextPane panelStatus) {
 		
 		SpiderDataBaseInit bbddinit = new SpiderDataBaseInit();
 		
@@ -43,22 +49,22 @@ public class SpiderMain {
 			
 			// Cargar los datos
 			elemento.setId(id + "");
-			obtenerInfo(url, 60000);
-			obtenerInfo("http://www.mejortorrent.com/peli-descargar-torrent-" + id + "-a.html", 60000);
+			obtenerInfo(url, 60000, panelStatus);
+			obtenerInfo("http://www.mejortorrent.com/peli-descargar-torrent-" + id + "-a.html", 60000, panelStatus);
 			
 			// Insertar el registro
 			if (elemento.getName() != NOT_VALID_ID) {
 				bbddinit.insertElement(elemento);
-				System.out.println("Registro insertado: " + id);
+				panelStatus.setText("Registro insertado: " + id);
 			}
 			
 		}
 		
-		System.out.println("Fin del programa");
+		panelStatus.setText("Fin del programa");
 		
     }
 
-	public static void obtenerInfo(String url, int timeout) {
+	private static void obtenerInfo(String url, int timeout, JTextPane panelStatus) {
 		
 		Document doc = null;
 		Elements pelicula = null;
@@ -96,7 +102,7 @@ public class SpiderMain {
 				else if (bloque_1[8].contains("DVDscreener"))
 					elemento.setQuality("DVDscreener");
 				else {
-					System.out.println("Formato no reconocido: " + bloque_1[8]);
+					panelStatus.setText("Formato no reconocido: " + bloque_1[8]);
 					elemento.setQuality("Unknown");
 				}
 				
@@ -107,7 +113,7 @@ public class SpiderMain {
 					// System.out.println("size: " + bloque_3[0].substring(7));
 					elemento.setSize(bloque_3[0].substring(7));
 			} else {
-				System.out.println("Registro corrupto en la página");
+				panelStatus.setText("Registro corrupto en la página");
 				elemento.setName(NOT_VALID_ID);
 			}
 		}

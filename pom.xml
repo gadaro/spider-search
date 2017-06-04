@@ -43,7 +43,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>com.apps.spider.SpiderMain</mainClass>
+							<mainClass>spidergui.SpiderFrame</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
