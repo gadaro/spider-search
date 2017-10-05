@@ -1,3 +1,3 @@
 # spider-search
 
-In development...
+## En desarrollo, no disponible para pruebas.
